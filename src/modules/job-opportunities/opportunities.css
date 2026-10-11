@@ -1,10 +1,45 @@
 @import '../../shared/components/styles.css';
 
+.job-duplicate {
+  border: 1px solid var(--palette-a9c8b5);
+  border-radius: 14px;
+  padding: 20px;
+  background: var(--palette-f5faf6);
+}
+.job-duplicate h2 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+}
+.job-duplicate p {
+  margin: 0 0 10px;
+}
+.job-duplicate-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
 .job-list-actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   margin: -20px 0 24px;
+}
+.job-archive-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: auto;
+  cursor: pointer;
+  font-weight: 600;
+}
+.job-archive-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--palette-1d7656);
 }
 .job-empty-state {
   border: 1px dashed var(--palette-a9c8b5);

@@ -1,4 +1,5 @@
 import './styles.css'
+import { Link } from '@tanstack/react-router'
 import {
   Field,
   HelpText,
@@ -12,6 +13,8 @@ export function JobCaptureView() {
     form,
     updateField,
     analyze,
+    duplicate,
+    dismissDuplicate,
     busy,
     error,
     descriptionError,
@@ -28,7 +31,7 @@ export function JobCaptureView() {
       description="Paste the job offer and we’ll organize its details and requirements for you to review."
       back="/jobs"
       nextLabel="Analyze job"
-      onNext={analyze}
+      onNext={() => void analyze()}
       busy={busy}
       error={error}
       aside={
@@ -39,6 +42,51 @@ export function JobCaptureView() {
       }
     >
       <div className="form-stack">
+        {duplicate && (
+          <section
+            className="job-duplicate"
+            role="alert"
+            aria-label="Existing opportunity"
+          >
+            <h2>
+              {duplicate.code === 'duplicate_url'
+                ? 'This job is already saved'
+                : 'Similar job found'}
+            </h2>
+            <p>{duplicate.message}</p>
+            <p>
+              <strong>{duplicate.existing.role || 'Job opportunity'}</strong>
+              {duplicate.existing.company &&
+                ` at ${duplicate.existing.company}`}
+            </p>
+            <div className="job-duplicate-actions">
+              <Link
+                to="/jobs/$jobId"
+                params={{ jobId: duplicate.existing.id }}
+                className="button button-quiet"
+              >
+                View existing job
+              </Link>
+              {duplicate.code === 'similar_job' && (
+                <button
+                  type="button"
+                  className="button button-primary"
+                  disabled={busy}
+                  onClick={() => void analyze(true)}
+                >
+                  Continue anyway
+                </button>
+              )}
+              <button
+                type="button"
+                className="text-button"
+                onClick={dismissDuplicate}
+              >
+                Dismiss
+              </button>
+            </div>
+          </section>
+        )}
         <section className="form-panel">
           <div className="panel-heading">
             <span className="section-number">1</span>

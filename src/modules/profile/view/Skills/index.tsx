@@ -6,7 +6,13 @@ import { InfoAside, StepLayout } from '../../components/components'
 import { useProfile } from '../../hooks/profileContext'
 import type { Proficiency } from '../../types'
 
-const levels: Proficiency[] = ['Unspecified', 'Beginner', 'Intermediate', 'Advanced', 'Expert']
+const levels: Proficiency[] = [
+  'Unspecified',
+  'Beginner',
+  'Intermediate',
+  'Advanced',
+  'Expert',
+]
 
 export function SkillsView() {
   const { profile, update, save } = useProfile()
@@ -41,7 +47,7 @@ export function SkillsView() {
             : undefined
       }
       title="Skills you bring"
-      description="Add the capabilities you use in your work and choose a proficiency level for each one."
+      description="Add your skills, group them by category, and choose a proficiency level for each one."
       back={
         profile.complete
           ? '/profile/edit'
@@ -94,6 +100,23 @@ export function SkillsView() {
                 />
               </label>
               <label className="field">
+                <span>Category</span>
+                <input
+                  value={skill.category ?? ''}
+                  onChange={(event) =>
+                    update({
+                      skills: profile.skills.map((entry) =>
+                        entry.id === skill.id
+                          ? { ...entry, category: event.target.value }
+                          : entry,
+                      ),
+                    })
+                  }
+                  placeholder="e.g. Programming languages"
+                  maxLength={100}
+                />
+              </label>
+              <label className="field">
                 <span>Proficiency</span>
                 <select
                   value={skill.proficiency}
@@ -143,6 +166,7 @@ export function SkillsView() {
                   id: crypto.randomUUID(),
                   name: '',
                   proficiency: 'Intermediate',
+                  category: '',
                 },
               ],
             })

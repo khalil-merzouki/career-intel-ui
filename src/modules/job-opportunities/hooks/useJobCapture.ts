@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { jobApi } from '../api/jobApi'
-import type { JobOpportunityInput } from '../types'
+import { DuplicateJobError, jobApi } from '../api/jobApi'
+import type { DuplicateJob, JobOpportunityInput } from '../types'
 import {
   isValidJobUrl,
   MIN_JOB_DESCRIPTION_CHARACTERS,
@@ -19,11 +19,13 @@ export function useJobCapture() {
   const [error, setError] = useState('')
   const [descriptionError, setDescriptionError] = useState('')
   const [urlError, setUrlError] = useState('')
+  const [duplicate, setDuplicate] = useState<DuplicateJob | null>(null)
   const navigate = useNavigate()
 
   function updateField(field: keyof JobOpportunityInput, value: string) {
     setForm((current) => ({ ...current, [field]: value }))
     setError('')
+    setDuplicate(null)
     if (
       field === 'description' &&
       value.trim().length >= MIN_JOB_DESCRIPTION_CHARACTERS
@@ -35,7 +37,7 @@ export function useJobCapture() {
     }
   }
 
-  async function analyze() {
+  async function analyze(allowSimilar = false) {
     const validation = validateJobCapture(form)
     if (validation) {
       setDescriptionError(
@@ -57,13 +59,14 @@ export function useJobCapture() {
     setBusy(true)
     setError('')
     try {
-      const opportunity = await jobApi.analyze(form)
+      const opportunity = await jobApi.analyze({ ...form, allowSimilar })
       await navigate({
         to: '/jobs/$jobId/review',
         params: { jobId: opportunity.id },
       })
     } catch (issue) {
-      setError((issue as Error).message)
+      if (issue instanceof DuplicateJobError) setDuplicate(issue.duplicate)
+      else setError((issue as Error).message)
     } finally {
       setBusy(false)
     }
@@ -73,6 +76,8 @@ export function useJobCapture() {
     form,
     updateField,
     analyze,
+    duplicate,
+    dismissDuplicate: () => setDuplicate(null),
     busy,
     error,
     descriptionError,

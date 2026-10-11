@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { ReviewRow } from './components'
 import type { Profile } from '../types'
+import { SkillGroups } from './SkillGroups'
 
 export function ProfileSummary({
   profile,
@@ -39,19 +40,7 @@ export function ProfileSummary({
         title="Skills & proficiency"
         to={editable ? '/profile/setup/skills' : undefined}
       >
-        <div className="chip-list">
-          {profile.skills.length ? (
-            profile.skills
-              .filter((item) => item.name.trim())
-              .map((item) => (
-                <span className="chip" key={item.id}>
-                  {item.name} · {item.proficiency}
-                </span>
-              ))
-          ) : (
-            <p>No skills added</p>
-          )}
-        </div>
+        <SkillGroups skills={profile.skills} />
       </ReviewRow>
       <ReviewRow
         icon={<GraduationCap size={20} />}

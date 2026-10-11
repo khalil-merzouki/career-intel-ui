@@ -176,9 +176,18 @@
 }
 .skill-edit-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) 38px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.4fr) minmax(0, 1fr) 38px;
   gap: 13px;
   align-items: end;
+}
+.skill-groups {
+  display: grid;
+  gap: 18px;
+}
+.skill-group h3 {
+  font-size: 0.9rem;
+  margin: 0 0 9px;
+  color: var(--palette-212c40);
 }
 .skill-remove {
   margin-bottom: 3px;
@@ -466,7 +475,8 @@
   .skill-edit-row {
     grid-template-columns: minmax(0, 1fr) 39px;
   }
-  .skill-edit-row .field:nth-child(2) {
+  .skill-edit-row .field:nth-child(2),
+  .skill-edit-row .field:nth-child(3) {
     grid-column: 1;
   }
   .skill-remove {

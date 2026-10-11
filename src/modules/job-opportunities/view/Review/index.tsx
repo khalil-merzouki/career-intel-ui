@@ -8,7 +8,7 @@ import {
 } from '../../../../shared/components'
 import { RequirementsEditor } from '../../components/RequirementsEditor'
 import { useJobReview } from '../../hooks/useJobReview'
-import type { WorkType } from '../../types'
+import type { JobType, WorkType } from '../../types'
 
 export function JobReviewView() {
   const params = useParams({ strict: false })
@@ -97,6 +97,21 @@ export function JobReviewView() {
                   <option value="remote">Remote</option>
                   <option value="hybrid">Hybrid</option>
                   <option value="on-site">On-site</option>
+                  <option value="unknown">Not specified</option>
+                </select>
+              </label>
+              <label className="field">
+                <span>Job type</span>
+                <select
+                  value={opportunity.jobType ?? 'unknown'}
+                  onChange={(event) =>
+                    job.updateDetails({
+                      jobType: event.target.value as JobType,
+                    })
+                  }
+                >
+                  <option value="permanent">Permanent</option>
+                  <option value="contract">Contract</option>
                   <option value="unknown">Not specified</option>
                 </select>
               </label>

@@ -84,9 +84,24 @@ export const profileHandlers = [
         },
       ],
       skills: [
-        { id: 'skill-1', name: 'Figma', proficiency: 'Advanced' },
-        { id: 'skill-2', name: 'User research', proficiency: 'Advanced' },
-        { id: 'skill-3', name: 'Prototyping', proficiency: 'Intermediate' },
+        {
+          id: 'skill-1',
+          name: 'Figma',
+          proficiency: 'Advanced',
+          category: 'Design tools',
+        },
+        {
+          id: 'skill-2',
+          name: 'User research',
+          proficiency: 'Advanced',
+          category: 'Research',
+        },
+        {
+          id: 'skill-3',
+          name: 'Prototyping',
+          proficiency: 'Intermediate',
+          category: 'Design',
+        },
       ],
       education: [
         {

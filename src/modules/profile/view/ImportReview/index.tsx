@@ -10,6 +10,7 @@ import {
 import { useNavigate } from '@tanstack/react-router'
 import { InfoAside, ReviewRow, StepLayout } from '../../components/components'
 import { useProfile } from '../../hooks/profileContext'
+import { SkillGroups } from '../../components/SkillGroups'
 
 export function ImportReviewView() {
   const { profile } = useProfile()
@@ -59,17 +60,7 @@ export function ImportReviewView() {
           title="Skills & proficiency"
           to="/profile/setup/skills"
         >
-          <div className="chip-list">
-            {profile.skills.length ? (
-              profile.skills.map((item) => (
-                <span className="chip" key={item.id}>
-                  {item.name} · {item.proficiency}
-                </span>
-              ))
-            ) : (
-              <p>Not added</p>
-            )}
-          </div>
+          <SkillGroups skills={profile.skills} />
         </ReviewRow>
         <ReviewRow
           icon={<GraduationCap size={20} />}

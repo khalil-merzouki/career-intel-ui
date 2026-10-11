@@ -216,6 +216,15 @@ function getJobDetails(description: string, url: string) {
   else if (/on[ -]site|in.office|office.based/i.test(description))
     workType = 'on-site'
 
+  const jobType: JobOpportunity['jobType'] =
+    /\b(permanent|indefinite|open[- ]ended|CDI)\b/i.test(description)
+      ? 'permanent'
+      : /\b(fixed[- ]term|temporary|freelance|contractor|contract|CDD)\b/i.test(
+            description,
+          )
+        ? 'contract'
+        : 'unknown'
+
   const labeledLocation = description
     .match(/^(?:location|based in|located in)\s*:\s*(.+)$/im)?.[1]
     ?.trim()
@@ -272,6 +281,7 @@ function getJobDetails(description: string, url: string) {
     company,
     location,
     workType,
+    jobType,
     salary: listedSalary ?? estimatedSalary,
     salarySource: listedSalary ? ('listed' as const) : ('estimated' as const),
     seniority,
@@ -345,7 +355,71 @@ export const jobHandlers = [
     if (validation) {
       return HttpResponse.json({ message: validation }, { status: 400 })
     }
-    const opportunity = analyze(input)
+    if (
+      input.allowSimilar !== undefined &&
+      typeof input.allowSimilar !== 'boolean'
+    ) {
+      return HttpResponse.json(
+        { message: 'Invalid duplicate confirmation.' },
+        { status: 400 },
+      )
+    }
+    const normalizedUrl = (value: string) => {
+      if (!value.trim()) return ''
+      const url = new URL(value.trim())
+      url.hash = ''
+      return url.toString().replace(/\/$/, '')
+    }
+    const url = normalizedUrl(input.url)
+    const sameUrl =
+      url && opportunities.find((item) => normalizedUrl(item.url) === url)
+    if (sameUrl) {
+      return HttpResponse.json(
+        {
+          code: 'duplicate_url',
+          message: 'This job URL is already in your opportunities.',
+          existing: {
+            id: sameUrl.id,
+            role: sameUrl.role,
+            company: sameUrl.company,
+            url: sameUrl.url,
+          },
+        },
+        { status: 409 },
+      )
+    }
+    const opportunity = analyze({
+      url: input.url,
+      description: input.description,
+    })
+    const normalizedName = (value: string) =>
+      value.trim().replace(/\s+/g, ' ').toLowerCase()
+    const role = normalizedName(opportunity.role)
+    const company = normalizedName(opportunity.company)
+    const similar =
+      role &&
+      company &&
+      opportunities.find(
+        (item) =>
+          normalizedName(item.role) === role &&
+          normalizedName(item.company) === company,
+      )
+    if (similar && !input.allowSimilar) {
+      return HttpResponse.json(
+        {
+          code: 'similar_job',
+          message:
+            'A job with the same role and company already exists at another URL.',
+          existing: {
+            id: similar.id,
+            role: similar.role,
+            company: similar.company,
+            url: similar.url,
+          },
+        },
+        { status: 409 },
+      )
+    }
     storeOpportunities([opportunity, ...opportunities])
     return HttpResponse.json(opportunity, { status: 201 })
   }),

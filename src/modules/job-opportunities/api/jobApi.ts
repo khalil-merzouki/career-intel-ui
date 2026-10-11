@@ -1,9 +1,16 @@
 import type {
   JobOpportunity,
   JobOpportunityInput,
+  DuplicateJob,
   MatchAnalysis,
   RecruiterMatch,
 } from '../types'
+
+export class DuplicateJobError extends Error {
+  constructor(public readonly duplicate: DuplicateJob) {
+    super(duplicate.message)
+  }
+}
 
 async function read<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -25,7 +32,9 @@ export const jobApi = {
       read<MatchAnalysis>(response),
     ),
   evaluateMatch: (id: string) =>
-    fetch(`/api/jobs/${encodeURIComponent(id)}/evaluate-match`, { method: 'POST' }).then((response) => read<RecruiterMatch>(response)),
+    fetch(`/api/jobs/${encodeURIComponent(id)}/evaluate-match`, {
+      method: 'POST',
+    }).then((response) => read<RecruiterMatch>(response)),
   save: (opportunity: JobOpportunity) =>
     fetch(`/api/jobs/${encodeURIComponent(opportunity.id)}`, {
       method: 'PUT',
@@ -40,7 +49,15 @@ export const jobApi = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input),
-    }).then((response) => read<JobOpportunity>(response)),
+    }).then(async (response) => {
+      if (response.status === 409) {
+        const error = await response.json()
+        if (error.code === 'duplicate_url' || error.code === 'similar_job')
+          throw new DuplicateJobError(error as DuplicateJob)
+        throw new Error(error.message || 'Could not add this job.')
+      }
+      return read<JobOpportunity>(response)
+    }),
   confirm: (opportunity: JobOpportunity) =>
     fetch(`/api/jobs/${encodeURIComponent(opportunity.id)}/confirm`, {
       method: 'POST',
